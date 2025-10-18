@@ -36,4 +36,34 @@ public class ProductsController : ControllerBase
         await context.SaveChangesAsync();
         return product;
     }
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> UpdateProduct(int id, Product Product)
+    {
+        if (Product.Id != id || !ProductExists(id))
+            return BadRequest("Cannot update product");
+
+        context.Entry(Product).State = EntityState.Modified;
+
+        await context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteProduct(int id)
+    {
+        var product = await context.Products.FindAsync(id);
+        if (product == null) return NotFound();
+
+        context.Products.Remove(product);
+        await context.SaveChangesAsync();
+
+        return NoContent();
+    }
+    
+    private bool ProductExists(int id)
+    {
+        return context.Products.Any(e => e.Id == id);
+    }
 }
